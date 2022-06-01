@@ -1,6 +1,10 @@
 package Main;
 import Car.Car;
-import Car.Keyboard;
+import Others.Keyboard;
+import Car.Gasolina;
+import Car.VidroEletrico;
+import Others.Information;
+import Others.TelaInicial;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -13,7 +17,11 @@ public class Game extends JPanel implements Runnable {
     Keyboard keyboard = new Keyboard();
     Thread gameThread;
     BufferedImage background;
-    Car carro = new Car(keyboard);
+    VidroEletrico vidroEletrico = new VidroEletrico();
+    Gasolina gasolina = new Gasolina();
+    Car carro = new Car(keyboard, vidroEletrico, gasolina);
+    Information information = new Information(gasolina,vidroEletrico);
+    TelaInicial telaInicial = new TelaInicial();
     final double FPS = 60;
 
     public Game() {
@@ -23,7 +31,7 @@ public class Game extends JPanel implements Runnable {
         this.setPreferredSize(new Dimension(800,600));
         this.setFocusable(true);
         try {
-            background = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/Sprites/background.jpeg")));
+            background = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/Sprites/background.png")));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -38,15 +46,20 @@ public class Game extends JPanel implements Runnable {
     public void paintComponent(Graphics graph) {
         super.paintComponent(graph);
         Graphics2D graphics2D = (Graphics2D) graph;
-        graphics2D.drawImage(background,0,0,800,600,null);
+        graphics2D.drawImage(background,carro.getPosicaoCar()-500,0,1600,600,null);
         carro.draw(graphics2D);
+        information.draw(graphics2D);
+        if(telaInicial.isAlive()){
+            telaInicial.draw(graphics2D);
+        }
         graphics2D.dispose();
-
-
     }
 
     public void update() {
         carro.update();
+        information.update();
+        telaInicial.update(keyboard);
+
     }
 
     @Override
